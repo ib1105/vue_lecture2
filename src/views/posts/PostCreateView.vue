@@ -2,17 +2,17 @@
   <div>
     <h2>게시글 등록</h2>
     <hr class="my-4" />
-    <form @submit.prevent>
+    <form @submit.prevent="save">
       <div class="mb-3">
         <label for="title" class="form-label">제목</label>
-        <input type="text" class="form-control" id="title">
+        <input v-model="form.title" type="text" class="form-control" id="title" />
       </div>
       <div class="mb-3">
         <label for="content" class="form-label">내용</label>
-        <textarea class="form-control" id="content" rows="3"></textarea>
+        <textarea v-model="form.content" class="form-control" id="content" rows="3"></textarea>
       </div>
       <div class="py-4">
-        <button type = "button" classs="btn btn-outline-dark me-2" @click="goListPage">목록</button>
+        <button type="button" classs="btn btn-outline-dark me-2" @click="goListPage">목록</button>
         <button class="btn btn-primary">저장</button>
       </div>
     </form>
@@ -20,17 +20,34 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { createPost } from '@/api/posts'
 
-const router = useRouter();
+const router = useRouter()
 
-const goListPage = () => (
+//form 객체 생성
+const form = ref({
+  title: null,
+  content: null
+})
+
+const goListPage = () =>
   router.push({
     name: 'PostList'
   })
-)
+
+const save = async () => {
+  try {
+    await createPost({
+      ...form.value,
+      createdAt: Date.now()
+    })
+    router.push({ name: 'PostList' })
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

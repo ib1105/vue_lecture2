@@ -1,27 +1,25 @@
 <template>
-  <Appcard>
-    <h5 class="card-title">{{title}}</h5>
+  <AppCard>
+    <h5 class="card-title">{{ title }}</h5>
     <p class="card-text">{{ content }}</p>
     <p class="card-muted">{{ createdAt }}</p>
-  </Appcard>
+  </AppCard>
 </template>
 
 <script setup>
-import Appcard from '@/components/Appcard.vue'
+import AppCard from '@/components/AppCard.vue'
 defineProps({
-  title:{
+  title: {
     type: String,
-    required: true,
+    required: true
   },
-  content:{
-    type: String,
+  content: {
+    type: String
   },
-  createdAt:{
-    type: [String, Date, Number],
+  createdAt: {
+    type: [String, Date, Number]
   }
 })
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

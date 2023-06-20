@@ -5,46 +5,62 @@
     <div class="row g-3">
       <div v-for="post in posts" :key="post.id" class="col-4">
         <!-- col 12가 max, col-4로 적으면 12/4 이기 때문에 한 row에는 3개의 col이 생긴다. -->
-        <PostItem :title="post.title" :content="post.content" :created-at="post.createdAt" @click="goPage(post.id)"></PostItem>
+        <PostItem
+          :title="post.title"
+          :content="post.content"
+          :created-at="post.createdAt"
+          @click="goPage(post.id)"
+        ></PostItem>
       </div>
     </div>
     <hr class="my-4" />
-    <Appcard>
+    <AppCard>
       <PostDetailView :id="1"></PostDetailView>
-    </Appcard>
+    </AppCard>
   </div>
 </template>
 
 <script setup>
 import PostItem from '@/components/posts/PostItem.vue'
 import PostDetailView from '@/views/posts/PostDetailView.vue'
-import Appcard from '@/components/Appcard.vue'
-import {getPosts} from '@/api/posts'
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import AppCard from '@/components/AppCard.vue'
+import { getPosts } from '@/api/posts'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const posts = ref([]); //post라는 반응형데이터를 생성
+const posts = ref([]) //post라는 반응형데이터를 생성
 
-const fetchPosts = () =>{
-  posts.value = getPosts();
+const fetchPosts = async () => {
+  try {
+    /*
+  그런데 사실 Ajax 다음에 나온 것이 Async - Await는 아닙니다. 그 중간에는 Promise라는 것이 있는데, Promise에 대한 이해를 먼저 해야 Async - Await를 이해할 수 있습니다.
+  Promise 역시 ES6 문법에서 사용되는 객체로, Async - Await는 쉽게 말하자면 Promise를 간소화한 것으로 이해하시면 될 것 같습니다.
+  */
+
+    //{data} 이 부분은 구조분해 할당이다.
+    /*
+    구조 분해 할당 구문은 배열이나 객체의 속성을 해체하여 그 값을 개별 변수에 담을 수 있게 하는 JavaScript 표현식입니다.
+  */
+    const { data } = await getPosts()
+    posts.value = data
+  } catch (error) {
+    console.error(error)
+  }
 }
-fetchPosts(); //script setup이 먼저 시작되고 fetchPosts() 함수를 실행
+fetchPosts() //script setup이 먼저 시작되고 fetchPosts() 함수를 실행
 
-const goPage = id => {
+const goPage = (id) => {
   //router.push(`/posts/${id}`);
   //push 메서드에서는 문자열 뿐만 아니라 아래처럼 객체도 넣을 수 있다.
   router.push({
     //router을 통해 해당 name가 있는 path로 이동됨
-    name:'PostDetail',
-    params:{
-      id,
+    name: 'PostDetail',
+    params: {
+      id
     }
   })
 }
-
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
