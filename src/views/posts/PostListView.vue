@@ -8,12 +8,17 @@
         <PostItem :title="post.title" :content="post.content" :created-at="post.createdAt" @click="goPage(post.id)"></PostItem>
       </div>
     </div>
-    
+    <hr class="my-4" />
+    <Appcard>
+      <PostDetailView :id="1"></PostDetailView>
+    </Appcard>
   </div>
 </template>
 
 <script setup>
 import PostItem from '@/components/posts/PostItem.vue'
+import PostDetailView from '@/views/posts/PostDetailView.vue'
+import Appcard from '@/components/Appcard.vue'
 import {getPosts} from '@/api/posts'
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';

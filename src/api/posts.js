@@ -7,6 +7,11 @@ const posts = [
   {id: 5, title: "제목5", content: "내용5", createdAt: "2020-05-05"},
 ];
 
-export function getPosts(){
-  return posts;
+export function getPosts() {
+	return posts;
+}
+
+export function getPostById(id) {
+  //아이템 id와 일치하는 id를 찾는 함수
+	return posts.find(item => item.id === id);
 }

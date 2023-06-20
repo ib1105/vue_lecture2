@@ -1,14 +1,13 @@
 <template>
-<div class="card">
-  <div class="card-body">
+  <Appcard>
     <h5 class="card-title">{{title}}</h5>
     <p class="card-text">{{ content }}</p>
     <p class="card-muted">{{ createdAt }}</p>
-  </div>
-</div>
+  </Appcard>
 </template>
 
 <script setup>
+import Appcard from '@/components/Appcard.vue'
 defineProps({
   title:{
     type: String,
