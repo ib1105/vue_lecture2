@@ -13,7 +13,30 @@
         ></PostItem>
       </div>
     </div>
-    <hr class="my-4" />
+    <nav class="mt-5" aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <li class="page-item">
+          <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <!-- <li v-for="page in pageCount" :key="page" class="page-item">
+					<a class="page-link" href="#" @click.prevent="params._page = page">{{page}}</a>
+        </li> -->
+
+        <li v-for="page in pageCount" :key="page" class="page-item">
+					<a class="page-link" href="#" >{{ page }}</a>
+				</li>
+
+
+        <li class="page-item">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <hr class="my-5" />
     <AppCard>
       <PostDetailView :id="1"></PostDetailView>
     </AppCard>
@@ -25,11 +48,29 @@ import PostItem from '@/components/posts/PostItem.vue'
 import PostDetailView from '@/views/posts/PostDetailView.vue'
 import AppCard from '@/components/AppCard.vue'
 import { getPosts } from '@/api/posts'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { computed } from '@vue/reactivity'
 
 const router = useRouter()
 const posts = ref([]) //post라는 반응형데이터를 생성
+const params = ref({
+  _sort: 'createdAt',
+  _order: 'desc',
+  _limit: 3//,
+  //_page: 1
+})
+
+// pagination
+const totalCount = ref(0);
+const pageCount = computed(() =>
+console.log('totalCount : ', totalCount.value),
+console.log('params.value._limit : ', params.value._limit),
+console.log('페이지수: ',Math.ceil(totalCount.value / params.value._limit)),
+  Math.ceil(totalCount.value / params.value._limit),
+  
+);
+
 
 const fetchPosts = async () => {
   try {
@@ -42,13 +83,14 @@ const fetchPosts = async () => {
     /*
     구조 분해 할당 구문은 배열이나 객체의 속성을 해체하여 그 값을 개별 변수에 담을 수 있게 하는 JavaScript 표현식입니다.
   */
-    const { data } = await getPosts()
-    posts.value = data
-  } catch (error) {
-    console.error(error)
-  }
-}
-fetchPosts() //script setup이 먼저 시작되고 fetchPosts() 함수를 실행
+  const { data, headers } = await getPosts(params.value);
+		posts.value = data;
+		totalCount.value = headers['x-total-count'];
+	} catch (error) {
+		console.error(error);
+	}
+};
+watchEffect(fetchPosts()); //script setup이 먼저 시작되고 fetchPosts() 함수를 실행
 
 const goPage = (id) => {
   //router.push(`/posts/${id}`);
