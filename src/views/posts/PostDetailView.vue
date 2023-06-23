@@ -32,13 +32,17 @@ import { ref } from 'vue'
 
 const props = defineProps({
   //라우터에서 props로 전달
-  id: Number
+  id: String
 })
 
 //const route = useRoute(); // ussRoute()로 route 객체를 가져올 수 있다.
 const router = useRouter()
 //const id = route.params.id;
-const post = ref({})
+const post = ref({
+	// title: null,
+	// content: null,
+	// createdAt: null
+});
 /**
  * ref
  * 장) 객체 할당 가능
@@ -58,7 +62,7 @@ const fetchPost = async () => {
     const { data } = await getPostById(props.id)
     setPost(data)
   } catch (error) {
-    console.error(error)
+    //console.error(error)
   }
 }
 

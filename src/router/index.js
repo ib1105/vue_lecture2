@@ -36,8 +36,8 @@ const routes = [
     path: '/posts/:id', //여러개의 url을 하나의 컴포넌트에 매핑하고 싶을때 동적으로 사용한다. router객체의 params로 id값을 받을 수 있음.
     name: 'PostDetail',
     component: PostDetailView,
-    //props: true, //props하고 boolean 값으로 true를 넣게 되면 :id 같은 파라미터가 해당 페이지컴포넌트에 props로 전달된다.
-    props: (route) => ({ id: parseInt(route.params.id) }) //위와 같은 말이다. 이런게 있다고 설명하면서 끼워맞춘 것
+    props: true //props하고 boolean 값으로 true를 넣게 되면 :id 같은 파라미터가 해당 페이지컴포넌트에 props로 전달된다.
+    //props: (route) => ({ id: parseInt(route.params.id) }) //위와 같은 말이다. 이런게 있다고 설명하면서 끼워맞춘 것
   },
   {
     path: '/posts/:id/edit',
