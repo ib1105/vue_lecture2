@@ -2,7 +2,9 @@
   <div>
     <h2>{{ post.title }}</h2>
     <p>{{ post.content }}</p>
-    <p class="text-muted">{{ post.createdAt }}</p>
+    <p class="text-muted">
+      {{ $dayjs(post.createdAt).format('YYYY. MM. DD HH:mm:ss') }}
+    </p>
     <hr class="my-4" />
     <div class="row g-2">
       <div class="col-auto">
@@ -29,20 +31,23 @@
 import { useRouter } from 'vue-router'
 import { getPostById, deletePost } from '@/api/posts'
 import { ref } from 'vue'
+import { useAlert } from '@/composables/alert'
 
 const props = defineProps({
   //라우터에서 props로 전달
-  id: String
+  id: [String, Number]
 })
 
 //const route = useRoute(); // ussRoute()로 route 객체를 가져올 수 있다.
 const router = useRouter()
+const { vAlert, vSuccess } = useAlert()
+
 //const id = route.params.id;
 const post = ref({
-	// title: null,
-	// content: null,
-	// createdAt: null
-});
+  // title: null,
+  // content: null,
+  // createdAt: null
+})
 /**
  * ref
  * 장) 객체 할당 가능
@@ -63,6 +68,7 @@ const fetchPost = async () => {
     setPost(data)
   } catch (error) {
     //console.error(error)
+    vAlert(error.message)
   }
 }
 
@@ -92,11 +98,12 @@ const remove = async () => {
       return
     }
     await deletePost(props.id)
-
+    vSuccess('삭제가 완료되었습니다.')
     //삭제가 되면 PostList로 이동
     router.push({ name: 'PostList' })
   } catch (error) {
     console.error(error)
+    vAlert(error.message)
   }
 }
 </script>

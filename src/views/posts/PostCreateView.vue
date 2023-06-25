@@ -1,21 +1,18 @@
 <template>
   <div>
-    <h2>게시글 등록</h2>
+    <h2 @click="visibleForm = !visibleForm">게시글 등록</h2>
     <hr class="my-4" />
-    <form @submit.prevent="save">
-      <div class="mb-3">
-        <label for="title" class="form-label">제목</label>
-        <input v-model="form.title" type="text" class="form-control" id="title" />
-      </div>
-      <div class="mb-3">
-        <label for="content" class="form-label">내용</label>
-        <textarea v-model="form.content" class="form-control" id="content" rows="3"></textarea>
-      </div>
-      <div class="py-4">
-        <button type="button" classs="btn btn-outline-dark me-2" @click="goListPage">목록</button>
+    <PostForm
+      v-if="visibleForm"
+      v-model:title="form.title"
+      v-model:content="form.content"
+      @submit.prevent="save"
+    >
+      <template #actions>
+        <button type="button" class="btn btn-outline-dark" @click="goListPage">목록</button>
         <button class="btn btn-primary">저장</button>
-      </div>
-    </form>
+      </template>
+    </PostForm>
   </div>
 </template>
 
@@ -23,6 +20,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { createPost } from '@/api/posts'
+import PostForm from '@/components/posts/PostForm.vue'
+import { useAlert } from '@/composables/alert'
+// alert
+const { vAlert, vSuccess } = useAlert()
+//useAlert()를 호출해서 alert이라는 상태를 변경할 수 있는, vAlert, vSuccess 함수를 가져왔다.
+//
 
 const router = useRouter()
 
@@ -37,6 +40,8 @@ const goListPage = () =>
     name: 'PostList'
   })
 
+const visibleForm = ref(true)
+
 const save = async () => {
   try {
     await createPost({
@@ -44,8 +49,10 @@ const save = async () => {
       createdAt: Date.now()
     })
     router.push({ name: 'PostList' })
+    vSuccess('등록이 완료되었습니다!')
   } catch (error) {
     console.error(error)
+    vAlert(error.message)
   }
 }
 </script>
