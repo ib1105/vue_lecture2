@@ -7,31 +7,38 @@
 
     <hr class="my-4" />
 
-    <AppGrid :items="posts">
-      <template v-slot="{ item }">
-        <!-- 슬롯이란 컴포넌트에 콘텐츠나 다른 컴포넌트를 또 다른 방식으로 
+    <AppLoading v-if="loading" />
+
+    <AppError v-else-if="error" :message="error.message" />
+
+    <template v-else>
+      <AppGrid :items="posts">
+        <template v-slot="{ item }">
+          <!-- 슬롯이란 컴포넌트에 콘텐츠나 다른 컴포넌트를 또 다른 방식으로 
 			주입시킬 수 있는 방법이다. 이 방법을 활용하면 컴포넌트를 훨씬 
 			재사용하기 용이하게 만들수 있다. -->
-        <PostItem
-          :title="item.title"
-          :content="item.content"
-          :created-at="item.createdAt"
-          @click="goPage(item.id)"
-          @modal="openModal(item)"
-        ></PostItem>
-        <!--
+          <PostItem
+            :title="item.title"
+            :content="item.content"
+            :created-at="item.createdAt"
+            @click="goPage(item.id)"
+            @modal="openModal(item)"
+          ></PostItem>
+          <!--
 		click를 하면 detail 페이지로 넘어가는데 만약, 하위컴포넌트인
 		postItem에서 button에 click에 stop 메서드를 안 넣으면
 		button에도 click이벤트가 버블링이 되어 button 눌러도 detail로 넘어간다. 
 		-->
-      </template>
-    </AppGrid>
+        </template>
+      </AppGrid>
 
-    <AppPagination
-      :current-page="params._page"
-      :page-count="pageCount"
-      @page="(page) => (params._page = page)"
-    />
+      <AppPagination
+        :current-page="params._page"
+        :page-count="pageCount"
+        @page="(page) => (params._page = page)"
+      />
+    </template>
+
     <Teleport to="#modal">
       <PostModal
         v-model="show"
@@ -66,6 +73,8 @@ import { computed } from '@vue/reactivity'
 
 const router = useRouter()
 const posts = ref([]) //post라는 반응형데이터를 생성
+const error = ref(null) //에러상태
+const loading = ref(false) //로딩상태
 const params = ref({
   _sort: 'createdAt',
   _order: 'desc',
@@ -91,14 +100,17 @@ const fetchPosts = async () => {
     /*
     구조 분해 할당 구문은 배열이나 객체의 속성을 해체하여 그 값을 개별 변수에 담을 수 있게 하는 JavaScript 표현식입니다.
   */
-
+    loading.value = true
     console.log('params.value :', params.value)
     const { data, headers } = await getPosts(params.value)
     posts.value = data
     console.log('data !! : ', data)
     totalCount.value = headers['x-total-count']
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    error.value = err
+  } finally {
+    //실패를 하건 성공을 하건 false 넣음
+    loading.value = false
   }
 }
 watchEffect(fetchPosts) //watchEffect 안에서 사용하고 있는 반응형상태(params)가 변경이 되었을때 해당 콜백함수를 다시 실행할 수 있다.
