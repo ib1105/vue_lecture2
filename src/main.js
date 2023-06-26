@@ -12,6 +12,7 @@ import router from '@/router'
 import globalDirectives from './plugins/global-directives'
 // import focus from '@/directives/focus';
 import dayjs from './plugins/dayjs'
+import { createPinia } from 'pinia'
 
 const app = createApp(App)
 //app.use(globalComponents)
@@ -22,6 +23,7 @@ const app = createApp(App)
 app.use(router)
 app.use(dayjs)
 app.use(globalDirectives)
+app.use(createPinia())
 app.mount('#app')
 
 //createApp(App).use(router).mount('#app')

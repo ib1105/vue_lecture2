@@ -3,7 +3,11 @@
     <h2>게시글 목록</h2>
     <hr class="my-4" />
 
-    <PostFilter v-model:title="params.title_like" v-model:limit="params._limit" />
+    <PostFilter
+      v-model:title="params.title_like"
+      :limit="params._limit"
+      @update:limit="changeLimit"
+    />
 
     <hr class="my-4" />
 
@@ -11,8 +15,12 @@
 
     <AppError v-else-if="error" :message="error.message" />
 
+    <template v-else-if="!isExist">
+      <p class="text-center py-4 text-muted">No Results</p>
+    </template>
+
     <template v-else>
-      <AppGrid :items="posts">
+      <AppGrid :items="posts" col-class="col-12 col-md-6 col-lg-4">
         <template v-slot="{ item }">
           <!-- 슬롯이란 컴포넌트에 콘텐츠나 다른 컴포넌트를 또 다른 방식으로 
 			주입시킬 수 있는 방법이다. 이 방법을 활용하면 컴포넌트를 훨씬 
@@ -23,6 +31,7 @@
             :created-at="item.createdAt"
             @click="goPage(item.id)"
             @modal="openModal(item)"
+            @preview="selectPreview(item.id)"
           ></PostItem>
           <!--
 		click를 하면 detail 페이지로 넘어가는데 만약, 하위컴포넌트인
@@ -51,10 +60,10 @@
 	#modal로 이동,
 	-->
 
-    <template v-if="posts && posts.length > 0">
+    <template v-if="previewId">
       <hr class="my-5" />
       <AppCard>
-        <PostDetailView :id="posts[0].id"></PostDetailView>
+        <PostDetailView :id="previewId"></PostDetailView>
       </AppCard>
     </template>
   </div>
@@ -68,34 +77,40 @@ import PostModal from '@/components/posts/PostModal.vue'
 
 //import { getPosts } from '@/api/posts'
 //import { ref, watchEffect } from 'vue'
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { computed } from '@vue/reactivity'
-import { useAxios } from '@/hooks/useAxios';
+import { useAxios } from '@/hooks/useAxios'
 
 const router = useRouter()
 // const posts = ref([]) //post라는 반응형데이터를 생성
 // const error = ref(null) //에러상태
 // const loading = ref(false) //로딩상태
+
+const previewId = ref(null)
+const selectPreview = (id) => (previewId.value = id)
+
 const params = ref({
   _sort: 'createdAt',
   _order: 'desc',
   _page: 1,
-  _limit: 3,
+  _limit: 6,
   title_like: ''
 })
 //params 반응형 데이터는 watchEffect(getPosts) 안에 있기 때문에 params에서 데이터가 변경되면 getPosts메서드가 다시 실행된다.
 
-const {
-	response,
-	data: posts,
-	error,
-	loading,
-} = useAxios('/posts', { params });
+const changeLimit = (value) => {
+  params.value._limit = value
+  params.value._page = 1
+}
+
+const { response, data: posts, error, loading } = useAxios('/posts', { params })
+
+const isExist = computed(() => posts.value && posts.value.length > 0)
 
 // pagination
 //const totalCount = ref(0)
-const totalCount = computed(() => response.value.headers['x-total-count']);
+const totalCount = computed(() => response.value.headers['x-total-count'])
 const pageCount = computed(() => Math.ceil(totalCount.value / params.value._limit))
 
 //script setup이 먼저 시작되고 fetchPosts() 함수를 실행

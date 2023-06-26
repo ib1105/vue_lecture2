@@ -5,6 +5,7 @@
 
   <div v-else>
     <h2>{{ post.title }}</h2>
+    <p>id: {{ props.id }}, isOdd: {{ isOdd }}</p>
     <p>{{ post.content }}</p>
     <p class="text-muted">
       {{ $dayjs(post.createdAt).format('YYYY. MM. DD HH:mm:ss') }}
@@ -13,10 +14,10 @@
     <AppError v-if="removeError" :message="removeError.message" />
     <div class="row g-2">
       <div class="col-auto">
-        <button class="btn btn-outline-dark">이전글</button>
+        <button class="btn btn-outline-dark" @click="$router.push('/posts/10')">이전글</button>
       </div>
       <div class="col-auto">
-        <button class="btn btn-outline-dark">다음글</button>
+        <button class="btn btn-outline-dark" @click="$router.push('/posts/11')">다음글</button>
       </div>
       <div class="col-auto me-auto"></div>
       <div class="col-auto">
@@ -39,12 +40,15 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { deletePost } from '@/api/posts';
+import { toRefs } from 'vue'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from 'vue-router'
+import { deletePost } from '@/api/posts'
 //import { getPostById, deletePost } from '@/api/posts'
 import { ref } from 'vue'
 import { useAlert } from '@/composables/alert'
-import { useAxios } from '@/hooks/useAxios';
+import { useAxios } from '@/hooks/useAxios'
+import { computed } from '@vue/reactivity'
+import { useNumber } from '@/composables/number'
 
 //const error = ref(null)
 //const loading = ref(false)
@@ -56,13 +60,16 @@ const props = defineProps({
 
 //const route = useRoute(); // ussRoute()로 route 객체를 가져올 수 있다.
 const router = useRouter()
+const { id: idRef } = toRefs(props)
+const { isOdd } = useNumber(idRef)
 const { vAlert, vSuccess } = useAlert()
+const url = computed(() => `/posts/${props.id}`)
 
 //const id = route.params.id;
 //const post = ref({
-  // title: null,
-  // content: null,
-  // createdAt: null
+// title: null,
+// content: null,
+// createdAt: null
 //})
 /**
  * ref
@@ -78,27 +85,28 @@ const { vAlert, vSuccess } = useAlert()
  * 강사는 페이지컴포넌트의 경우 웬만해선 ref를 쓴다고 한다. 일관성이 좋기 때문.
  */
 
- const { error, loading, data: post } = useAxios(`/posts/${props.id}`);
+//const { error, loading, data: post } = useAxios(`/posts/${props.id}`)
+const { error, loading, data: post } = useAxios(url)
 
- //composition api를 이용하여 composable 형식으로 바꿈(공통된 것 재사용을 위해)
- const {
-	error: removeError,
-	loading: removeLoading,
-	execute,
+//composition api를 이용하여 composable 형식으로 바꿈(공통된 것 재사용을 위해)
+const {
+  error: removeError,
+  loading: removeLoading,
+  execute
 } = useAxios(
-	`/posts/${props.id}`,
-	{ method: 'delete' },
-	{
-		immediate: false,
-		onSuccess: () => {
-			vSuccess('삭제가 완료되었습니다.');
-			router.push({ name: 'PostList' });
-		},
-		onError: err => {
-			vAlert(err.message);
-		},
-	},
-);
+  `/posts/${props.id}`,
+  { method: 'delete' },
+  {
+    immediate: false,
+    onSuccess: () => {
+      vSuccess('삭제가 완료되었습니다.')
+      router.push({ name: 'PostList' })
+    },
+    onError: (err) => {
+      vAlert(err.message)
+    }
+  }
+)
 // const fetchPost = async () => {
 //   try {
 //     loading.value = true
@@ -119,16 +127,15 @@ const { vAlert, vSuccess } = useAlert()
 // fetchPost()
 //console.log('getPostById : ', getPostById(props.id))
 
-
 //const removeError = ref(null)
 //const removeLoading = ref(false)
 //composition api를 이용하여 composable 형식으로 바꿈(공통된 것 재사용을 위해)
 const remove = async () => {
-	if (confirm('삭제 하시겠습니까?') === false) {
-		return;
-	}
-	execute();
-};
+  if (confirm('삭제 하시겠습니까?') === false) {
+    return
+  }
+  execute()
+}
 // const remove = async () => {
 //   try {
 //     if (confirm('삭제 하시겠습니까?') === false) {
@@ -159,6 +166,20 @@ const goEditPage = () =>
       id: props.id
     }
   })
+
+onBeforeRouteUpdate(() => {
+  console.log('onBeforeRouteUpdate')
+})
+onBeforeRouteLeave(() => {
+  console.log('onBeforeRouteLeave')
+})
+</script>
+<script>
+export default {
+  beforeRouteEnter() {
+    console.log('beforeRouteEnter')
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

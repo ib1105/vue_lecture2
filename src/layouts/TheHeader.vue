@@ -21,10 +21,10 @@
 				이를 통해 vue Router는 페이지를 리로딩하지 않고 URL에 매핑된 페이지를 렌더링 할 수 있다.
 			즉, 리로딩되지 않는 SinglePage 애플리케이션이 된다. -->
             <li class="nav-item">
-              <RouterLink class="nav-link" active-class="active" to="/">Home</RouterLink>
+              <RouterLink class="nav-link" active-class="active" to="/"> Home </RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" active-class="active" to="/about">About</RouterLink>
+              <RouterLink class="nav-link" active-class="active" to="/about"> About </RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" active-class="active" to="/posts">게시글</RouterLink>
@@ -37,6 +37,9 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/about">a About</a>
+            </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" active-class="active" to="/my"> MyPage </RouterLink>
             </li>
           </ul>
           <div class="d-flex">

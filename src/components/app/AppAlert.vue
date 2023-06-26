@@ -4,7 +4,7 @@
     <!-- TransitoinGroup : 그룹화 시킴, ex) 여러번 클릭 -> 아래로 여러번 alert -->
     <TransitionGroup name="slide">
       <div
-        v-for="({ message, type }, index) in items"
+        v-for="({ message, type }, index) in alerts"
         :key="index"
         class="alert"
         :class="typeStyle(type)"
@@ -17,9 +17,9 @@
 </template>
 
 <script setup>
-defineProps({
-  items: Array
-})
+import { useAlert } from '@/composables/alert'
+const { alerts } = useAlert()
+
 const typeStyle = (type) => (type === 'error' ? 'alert-danger' : 'alert-primary')
 </script>
 

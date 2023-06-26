@@ -1,13 +1,16 @@
 <template>
   <AppCard>
-    <h5 class="card-title">{{ title }}</h5>
-    <p class="card-text">{{ content }}</p>
+    <h5 class="card-title text-truncate">{{ title }}</h5>
+    <p class="card-text text-truncate">{{ content }}</p>
     <p class="text-muted">{{ createdDate }}</p>
     <template #footer>
       <div class="d-flex flex-row-reverse">
-        <button class="btn p-0" @click.stop="$emit('modal')">
+        <button class="btn p-1" @click.stop="$emit('modal')">
           <!-- click.stop으로 click 이벤트 내려왔을 때 루트에 버블링되는 것을 막아둔다. -->
           <i class="bi bi-emoji-sunglasses"></i>
+          <button class="btn p-1" @click.stop="$emit('preview')">
+            <i class="bi bi-app"></i>
+          </button>
         </button>
       </div>
     </template>
@@ -31,8 +34,8 @@ const props = defineProps({
   }
 })
 
-defineEmits(['modal'])
-
+//defineEmits(['modal'])
+defineEmits(['modal', 'preview'])
 const dayjs = inject('dayjs')
 const createdDate = computed(() => dayjs(props.createdAt).format('YYYY. MM. DD HH:mm:ss'))
 </script>
