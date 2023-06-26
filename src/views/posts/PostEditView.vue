@@ -28,9 +28,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { getPostById, updatePost } from '@/api/posts'
 import PostForm from '@/components/posts/PostForm.vue'
 import { useAlert } from '@/composables/alert.js'
+import { useAxios } from '@/hooks/useAxios';
 
-const error = ref(null)
-const loading = ref(false)
+//const error = ref(null)
+//const loading = ref(false)
 const route = useRoute()
 const router = useRouter()
 const id = route.params.id
@@ -38,45 +39,72 @@ const id = route.params.id
 // alert
 const { vAlert, vSuccess } = useAlert()
 
-const form = ref({
-  title: null,
-  content: null
-})
-const fetchPost = async () => {
-  try {
-    loading.value = true
-    const { data } = await getPostById(id)
-    setForm(data)
-  } catch (err) {
-    error.value = err
-  } finally {
-    loading.value = false
-  }
-}
-const setForm = ({ title, content }) => {
-  form.value.title = title
-  form.value.content = content
-}
-fetchPost()
+const { data: form, error, loading } = useAxios(`/posts/${id}`);
 
-const editError = ref(null)
-const editLoading = ref(false)
+// const form = ref({
+//   title: null,
+//   content: null
+// })
 
-const edit = async () => {
-  try {
-    editLoading.value = true
-    await updatePost(id, { ...form.value }) //첫번째 객체에는 id, 두번째 객체에는 form객체를 넣는다.
-    //수정 후 상세페이지로 이동
-    // router.push({ name: 'PostDetail', params: { id } });
-    router.push({ name: 'PostDetail', params: { id } })
-    vSuccess('수정이 완료되었습니다!')
-  } catch (err) {
-    vAlert(err.message)
-    editError.value = err
-  } finally {
-    editLoading.value = false
-  }
-}
+//composition api를 이용하여 composable 형식으로 바꿈(공통된 것 재사용을 위해)
+const {
+	error: editError,
+	loading: editLoading,
+	execute,
+} = useAxios(
+	`/posts/${id}`,
+	{ method: 'patch' },
+	{
+		immediate: false,
+		onSuccess: () => {
+			vSuccess('수정이 완료되었습니다!');
+			router.push({ name: 'PostDetail', params: { id } });
+		},
+		onError: err => {
+			vAlert(err.message);
+		},
+	},
+);
+// const fetchPost = async () => {
+//   try {
+//     loading.value = true
+//     const { data } = await getPostById(id)
+//     setForm(data)
+//   } catch (err) {
+//     error.value = err
+//   } finally {
+//     loading.value = false
+//   }
+// }
+// const setForm = ({ title, content }) => {
+//   form.value.title = title
+//   form.value.content = content
+// }
+// fetchPost()
+
+//const editError = ref(null)
+//const editLoading = ref(false)
+//composition api를 이용하여 composable 형식으로 바꿈(공통된 것 재사용을 위해)
+const edit = () => {
+	execute({
+		...form.value,
+	});
+};
+// const edit = async () => {
+//   try {
+//     editLoading.value = true
+//     await updatePost(id, { ...form.value }) //첫번째 객체에는 id, 두번째 객체에는 form객체를 넣는다.
+//     //수정 후 상세페이지로 이동
+//     // router.push({ name: 'PostDetail', params: { id } });
+//     router.push({ name: 'PostDetail', params: { id } })
+//     vSuccess('수정이 완료되었습니다!')
+//   } catch (err) {
+//     vAlert(err.message)
+//     editError.value = err
+//   } finally {
+//     editLoading.value = false
+//   }
+// }
 
 const goDetailPage = () =>
   router.push({

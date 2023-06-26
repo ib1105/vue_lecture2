@@ -66,15 +66,17 @@ import PostDetailView from '@/views/posts/PostDetailView.vue'
 import PostFilter from '@/components/posts/PostFilter.vue'
 import PostModal from '@/components/posts/PostModal.vue'
 
-import { getPosts } from '@/api/posts'
-import { ref, watchEffect } from 'vue'
+//import { getPosts } from '@/api/posts'
+//import { ref, watchEffect } from 'vue'
+import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 import { computed } from '@vue/reactivity'
+import { useAxios } from '@/hooks/useAxios';
 
 const router = useRouter()
-const posts = ref([]) //post라는 반응형데이터를 생성
-const error = ref(null) //에러상태
-const loading = ref(false) //로딩상태
+// const posts = ref([]) //post라는 반응형데이터를 생성
+// const error = ref(null) //에러상태
+// const loading = ref(false) //로딩상태
 const params = ref({
   _sort: 'createdAt',
   _order: 'desc',
@@ -84,36 +86,44 @@ const params = ref({
 })
 //params 반응형 데이터는 watchEffect(getPosts) 안에 있기 때문에 params에서 데이터가 변경되면 getPosts메서드가 다시 실행된다.
 
+const {
+	response,
+	data: posts,
+	error,
+	loading,
+} = useAxios('/posts', { params });
+
 // pagination
-const totalCount = ref(0)
+//const totalCount = ref(0)
+const totalCount = computed(() => response.value.headers['x-total-count']);
 const pageCount = computed(() => Math.ceil(totalCount.value / params.value._limit))
 
 //script setup이 먼저 시작되고 fetchPosts() 함수를 실행
-const fetchPosts = async () => {
-  try {
-    /*
-  그런데 사실 Ajax 다음에 나온 것이 Async - Await는 아닙니다. 그 중간에는 Promise라는 것이 있는데, Promise에 대한 이해를 먼저 해야 Async - Await를 이해할 수 있습니다.
-  Promise 역시 ES6 문법에서 사용되는 객체로, Async - Await는 쉽게 말하자면 Promise를 간소화한 것으로 이해하시면 될 것 같습니다.
-  */
+// const fetchPosts = async () => {
+//   try {
+//     /*
+//   그런데 사실 Ajax 다음에 나온 것이 Async - Await는 아닙니다. 그 중간에는 Promise라는 것이 있는데, Promise에 대한 이해를 먼저 해야 Async - Await를 이해할 수 있습니다.
+//   Promise 역시 ES6 문법에서 사용되는 객체로, Async - Await는 쉽게 말하자면 Promise를 간소화한 것으로 이해하시면 될 것 같습니다.
+//   */
 
-    //{data} 이 부분은 구조분해 할당이다.
-    /*
-    구조 분해 할당 구문은 배열이나 객체의 속성을 해체하여 그 값을 개별 변수에 담을 수 있게 하는 JavaScript 표현식입니다.
-  */
-    loading.value = true
-    console.log('params.value :', params.value)
-    const { data, headers } = await getPosts(params.value)
-    posts.value = data
-    console.log('data !! : ', data)
-    totalCount.value = headers['x-total-count']
-  } catch (err) {
-    error.value = err
-  } finally {
-    //실패를 하건 성공을 하건 false 넣음
-    loading.value = false
-  }
-}
-watchEffect(fetchPosts) //watchEffect 안에서 사용하고 있는 반응형상태(params)가 변경이 되었을때 해당 콜백함수를 다시 실행할 수 있다.
+//     //{data} 이 부분은 구조분해 할당이다.
+//     /*
+//     구조 분해 할당 구문은 배열이나 객체의 속성을 해체하여 그 값을 개별 변수에 담을 수 있게 하는 JavaScript 표현식입니다.
+//   */
+//     loading.value = true
+//     console.log('params.value :', params.value)
+//     const { data, headers } = await getPosts(params.value)
+//     posts.value = data
+//     console.log('data !! : ', data)
+//     totalCount.value = headers['x-total-count']
+//   } catch (err) {
+//     error.value = err
+//   } finally {
+//     //실패를 하건 성공을 하건 false 넣음
+//     loading.value = false
+//   }
+// }
+// watchEffect(fetchPosts) //watchEffect 안에서 사용하고 있는 반응형상태(params)가 변경이 되었을때 해당 콜백함수를 다시 실행할 수 있다.
 //watchEffect는 watch와 다르게 초기에 한 번 실행함
 
 const goPage = (id) => {
@@ -128,6 +138,7 @@ const goPage = (id) => {
   })
 }
 
+//modal
 const show = ref(false)
 const modalTitle = ref('')
 const modalContent = ref('')
