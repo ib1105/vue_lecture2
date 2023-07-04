@@ -104,7 +104,7 @@ const changeLimit = (value) => {
   params.value._page = 1
 }
 
-const { response, data: posts, error, loading } = useAxios('/posts', { params })
+const { response, data: posts, error, loading } = useAxios('/posts', { params }) //구조분해 할당으로 선언
 
 const isExist = computed(() => posts.value && posts.value.length > 0)
 

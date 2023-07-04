@@ -6,7 +6,8 @@
     <template #footer>
       <div class="d-flex flex-row-reverse">
         <button class="btn p-1" @click.stop="$emit('modal')">
-          <!-- click.stop으로 click 이벤트 내려왔을 때 루트에 버블링되는 것을 막아둔다. -->
+          <!-- click.stop으로 click 이벤트 내려왔을 때 루트에 버블링되는 것을 막아둔다. 
+                부모의 태그로 전파 중지, 딱 이 태그에만 클릭이벤트 발생하도록 설정-->
           <i class="bi bi-emoji-sunglasses"></i>
           <button class="btn p-1" @click.stop="$emit('preview')">
             <i class="bi bi-app"></i>
